@@ -1,6 +1,11 @@
 use nalgebra::{Vector2, Vector3};
 
-//pub type TriangleMap = BTreeMap<String, Triangle>;
+pub const BIT_MASK_N: u64 = 0b11;
+pub const BIT_MASK_S: u64 = 0b10;
+pub const BIT_MASK_0: u64 = 0b00;
+pub const BIT_MASK_1: u64 = 0b01;
+pub const BIT_MASK_2: u64 = 0b10;
+pub const BIT_MASK_3: u64 = 0b11;
 
 pub trait HtmIndex {
     fn build(max_depth: u8) -> Self;

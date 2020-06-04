@@ -1,11 +1,20 @@
 use nalgebra::Vector2;
 
-use crate::shared::{HtmIndex, vec2};
+use crate::shared::{
+    HtmIndex,
+    vec2,
+    BIT_MASK_N,
+    BIT_MASK_S,
+    BIT_MASK_0,
+    BIT_MASK_1,
+    BIT_MASK_2,
+    BIT_MASK_3,
+};
 
 type TrianglePoints = [Vector2<f32>; 3];
 
 pub struct Triangle2d {
-    pub label: String,
+    pub index: u64,
     pub points: TrianglePoints,
     pub children: Option<Box<[Triangle2d; 4]>>,
 }
@@ -24,19 +33,19 @@ fn divide_triangle([v0, v1, v2]: TrianglePoints) -> [TrianglePoints; 4] {
 }
 
 impl Triangle2d {
-    fn new(label: String, points: TrianglePoints, current_depth: u8, max_depth: u8) -> Self {
+    fn new(index: u64, points: TrianglePoints, current_depth: u8, max_depth: u8) -> Self {
         if current_depth >= max_depth {
-            return Self { label, points, children: None };
+            return Self { index, points, children: None };
         }
 
         let [t1, t2, t3, t4] = divide_triangle(points);
         let children = Some(Box::new([
-            Triangle2d::new(format!("{}0", label), t1, current_depth + 1, max_depth),
-            Triangle2d::new(format!("{}1", label), t2, current_depth + 1, max_depth),
-            Triangle2d::new(format!("{}2", label), t3, current_depth + 1, max_depth),
-            Triangle2d::new(format!("{}3", label), t4, current_depth + 1, max_depth),
+            Triangle2d::new((index << 2) | BIT_MASK_0, t1, current_depth + 1, max_depth),
+            Triangle2d::new((index << 2) | BIT_MASK_1, t2, current_depth + 1, max_depth),
+            Triangle2d::new((index << 2) | BIT_MASK_2, t3, current_depth + 1, max_depth),
+            Triangle2d::new((index << 2) | BIT_MASK_3, t4, current_depth + 1, max_depth),
         ]));
-        Self { label, points, children }
+        Self { index, points, children }
     }
 }
 
@@ -46,6 +55,10 @@ pub struct HtmIndex2d {
 
 impl HtmIndex for HtmIndex2d {
     fn build(max_depth: u8) -> Self {
+        if max_depth > 25 {
+            panic!("Can't create an index of the depth {}, maximum supported depth is 25");
+        }
+
         let current_depth = 1;
 
         let v0 = vec2(0.0, 0.0);
@@ -54,10 +67,10 @@ impl HtmIndex for HtmIndex2d {
         let v3 = vec2(1.0, 1.0);
         let v4 = vec2(-1.0, 1.0);
 
-        let s0 = Triangle2d::new("0".to_owned(), [v0, v1, v2], current_depth, max_depth);
-        let s1 = Triangle2d::new("1".to_owned(), [v0, v2, v3], current_depth, max_depth);
-        let s2 = Triangle2d::new("2".to_owned(), [v0, v3, v4], current_depth, max_depth);
-        let s3 = Triangle2d::new("3".to_owned(), [v0, v4, v1], current_depth, max_depth);
+        let s0 = Triangle2d::new((BIT_MASK_S << 2) | BIT_MASK_0, [v0, v1, v2], current_depth, max_depth);
+        let s1 = Triangle2d::new((BIT_MASK_S << 2) | BIT_MASK_1, [v0, v2, v3], current_depth, max_depth);
+        let s2 = Triangle2d::new((BIT_MASK_S << 2) | BIT_MASK_2, [v0, v3, v4], current_depth, max_depth);
+        let s3 = Triangle2d::new((BIT_MASK_S << 2) | BIT_MASK_3, [v0, v4, v1], current_depth, max_depth);
 
         Self { triangles: [s0, s1, s2, s3] }
     }

@@ -1,7 +1,3 @@
-use std::collections::BTreeMap;
-
-use nalgebra::Vector3;
-
 mod index_2d;
 mod index_3d;
 mod shared;
