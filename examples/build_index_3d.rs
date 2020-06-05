@@ -1,8 +1,15 @@
-use htm::{HtmIndex, HtmIndex3d, Triangle3d};
+use htm::{HtmIndex, HtmIndex3d, Trixel3d};
+use nalgebra::Vector3;
 
-fn inspect_triangle(triangle: &Triangle3d, max_depth: usize) {
-    let Triangle3d { index, points, children } = triangle;
-    let [v0, v1, v2] = points;
+fn inspect_trixel(trixel: &Trixel3d, max_depth: usize) {
+    let Trixel3d {
+        index,
+        triangle,
+        children,
+    } = trixel;
+    let v0 = triangle.a().coords;
+    let v1 = triangle.b().coords;
+    let v2 = triangle.c().coords;
     println!(
         "{:<prefix_width$b}: {:>group_width$?} {:>group_width$?} {:>group_width$?}",
         index,
@@ -14,15 +21,19 @@ fn inspect_triangle(triangle: &Triangle3d, max_depth: usize) {
     );
     if let Some(leaves) = children {
         for leaf in leaves.iter() {
-            inspect_triangle(leaf, max_depth);
+            inspect_trixel(leaf, max_depth);
         }
     }
 }
 
 fn main() {
     let depth = 3;
-    let index = HtmIndex3d::build(depth);
-    for triangle in index.triangles.iter() {
-        inspect_triangle(triangle, depth as usize);
+    let htm = HtmIndex3d::build(depth);
+    for trixel in htm.trixels.iter() {
+        inspect_trixel(trixel, depth as usize);
     }
+    let point = Vector3::new(-0.5, 0.1, 0.5);
+    let point_index = htm.get_index_by_direction(point);
+    println!();
+    println!("The index of the point {:?} is {:b}", point.data, point_index);
 }

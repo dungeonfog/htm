@@ -1,7 +1,11 @@
-use htm::{HtmIndex, HtmIndex2d, Triangle2d};
+use htm::{HtmIndex, HtmIndex2d, Trixel2d};
 
-fn inspect_triangle(triangle: &Triangle2d, max_depth: usize) {
-    let Triangle2d { index, points, children } = triangle;
+fn inspect_trixel(trixel: &Trixel2d, max_depth: usize) {
+    let Trixel2d {
+        index,
+        points,
+        children,
+    } = trixel;
     let [v0, v1, v2] = points;
     println!(
         "{:<prefix_width$b}: {:>group_width$?} {:>group_width$?} {:>group_width$?}",
@@ -14,7 +18,7 @@ fn inspect_triangle(triangle: &Triangle2d, max_depth: usize) {
     );
     if let Some(leaves) = children {
         for leaf in leaves.iter() {
-            inspect_triangle(leaf, max_depth);
+            inspect_trixel(leaf, max_depth);
         }
     }
 }
@@ -22,7 +26,7 @@ fn inspect_triangle(triangle: &Triangle2d, max_depth: usize) {
 fn main() {
     let depth = 3;
     let index = HtmIndex2d::build(depth);
-    for triangle in index.triangles.iter() {
-        inspect_triangle(triangle, depth as usize);
+    for trixel in index.trixels.iter() {
+        inspect_trixel(trixel, depth as usize);
     }
 }
