@@ -35,5 +35,8 @@ fn main() {
     let point = Vector3::new(-0.5, 0.1, 0.5);
     let point_index = htm.get_index_by_direction(point);
     println!();
-    println!("The index of the point {:?} is {:b}", point.data, point_index);
+    println!(
+        "The index of the point {:?} is {:b}",
+        point.data, point_index,
+    );
 }
